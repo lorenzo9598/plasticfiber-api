@@ -100,6 +100,25 @@ dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release
 | `dotnet publish` / exe senza `ASPNETCORE_URLS` | `5030` | — | Solo build **Release** (`#if DEBUG` falso); sovrascrivibile con env |
 | VS Code / avvio senza URL e senza profilo | `5000` o `5030` | — | Come build Debug vs Release in `Program.cs` |
 
+## Tunnel pubblico con ngrok
+
+Per esporre l’API che ascolta su **`http://localhost:5030`** verso Internet (callback, test da mobile, condivisione rapida):
+
+1. **Avvia l’API sulla 5030** (stesso processo che ngrok inoltrerà), ad esempio:
+   - `dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release`, oppure
+   - output di `dotnet publish ... -c Release` eseguito senza impostare `ASPNETCORE_URLS`.
+2. **Installa ngrok** (se non ce l’hai): da [ngrok download](https://ngrok.com/download) oppure su Windows con `winget install Ngrok.Ngrok`.
+3. **Autenticazione** (una tantum): dalla [dashboard ngrok](https://dashboard.ngrok.com/) copia il token ed esegui `ngrok config add-authtoken <TOKEN>`.
+4. **Tunnel HTTP verso la porta locale 5030**:
+
+```bash
+ngrok http 5030
+```
+
+ngrok mostra un URL pubblico `https://xxxx.ngrok-free.app` (o simile): le richieste a quell’host vengono proxy verso `localhost:5030`. Usa quella base URL per chiamare `GET /`, `GET /api/test`, ecc.
+
+**Note:** in **Production** Swagger non è attiva; per provare `/swagger` via tunnel avvia l’API in **Development** e punta ngrok alla porta che usi in quel caso (es. `ngrok http 5000`). Se un client invia l’header `Host` sbagliato, in casi rari serve `--host-header=rewrite` (vedi [documentazione ngrok](https://ngrok.com/docs)).
+
 ## Swagger / OpenAPI
 
 Swagger è abilitato **solo nell'ambiente `Development`** (vedi `Program.cs`, `app.UseSwagger()` / `app.UseSwaggerUI()`). Una volta avviata l'API:
@@ -126,7 +145,7 @@ La collection Postman v2.1 importabile per i test manuali si trova in:
 
 - [`docs/postman/PlasticFiber-API.postman_collection.json`](docs/postman/PlasticFiber-API.postman_collection.json)
 
-Per importarla: aprire **Postman → Import → File** e selezionare il file. La collection definisce una variabile `baseUrl` che punta di default al profilo `http` locale (`http://localhost:5165`); modificarla a livello di collection o di environment per puntare ad altri host/porte. Per test contro un’istanza avviata in Release con il profilo `http-release` (o con `ASPNETCORE_URLS` sulle stesse porte), impostare `baseUrl` ad esempio su `http://localhost:5080` (o `https://localhost:7080` se si usa HTTPS e il certificato è accettato).
+Per importarla: aprire **Postman → Import → File** e selezionare il file. La collection definisce una variabile `baseUrl` che punta di default al profilo `http` locale (`http://localhost:5000`); modificarla a livello di collection o di environment per puntare ad altri host/porte (es. `http://localhost:5030` in Release, o l’URL `https://…` fornito da ngrok).
 
 Quando si modificano route, controller, DTO esposti o `docs/API-SPEC.md`, la collection va aggiornata nello stesso PR per restare allineata.
 
