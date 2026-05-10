@@ -1,0 +1,45 @@
+## .NET / MSBuild
+bin/
+obj/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+TestResults/
+[Ll]og/
+[Ll]ogs/
+*.log
+*.tlog
+*.cache
+project.lock.json
+project.fragment.lock.json
+artifacts/
+[Dd]ist/
+[Pp]ublish/
+*.nupkg
+*.snupkg
+*.DotSettings.user
+appsettings.*.local.json
+
+## JetBrains / Rider
+.idea/
+*.sln.iml
+
+## NuGet (local scratch / restore output)
+**/packages/*
+!**/packages/build/
+
+## Coverage
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+*.opencover.xml
+
+## macOS
+.DS_Store
+
+## VS Code (optional: Local History extension)
+.history/

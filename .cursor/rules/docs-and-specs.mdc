@@ -1,0 +1,21 @@
+---
+description: Authoritative docs (domain + API spec) and Cursor skills for alignment checks
+alwaysApply: true
+---
+
+# Authoritative documentation
+
+- **Domain / DTOs**: `docs/DOMAIN-MODEL.md` is canonical for entity and DTO shapes. Code must match it; update the file whenever models change.
+- **HTTP API**: `docs/API-SPEC.md` is canonical for methods, paths, and request/response shapes. Wire new routes in code and in that file together.
+- **Postman**: `docs/postman/PlasticFiber-API.postman_collection.json` is the importable Postman Collection v2.1 for manual API testing. Whenever HTTP routes or controllers change, or `docs/API-SPEC.md` changes, update this JSON in the **same PR/change** so importers stay in sync with the spec.
+- **Automated tests**: When you change endpoints, DTOs, auth, or API behavior, update or add tests in `Plasticfiber.Api.Tests` in the same change. Run `dotnet test` from the solution root (or explicitly tell the user to run it) before treating the work as done.
+
+## Alignment skills (project)
+
+Invoke explicitly when auditing or before merge:
+
+- **Domain vs doc**: `.cursor/skills/domain-model-alignment/SKILL.md` — compare C# models/DTOs to `docs/DOMAIN-MODEL.md`.
+- **Routes vs doc**: `.cursor/skills/api-spec-alignment/SKILL.md` — compare Minimal API routes (or controllers) to `docs/API-SPEC.md`.
+- **Postman vs spec/code**: `.cursor/skills/postman-collection-alignment/SKILL.md` — compare `docs/postman/PlasticFiber-API.postman_collection.json` to `docs/API-SPEC.md` and implemented routes.
+
+If code and docs disagree, either fix the implementation or update the markdown so the pair stays consistent; note which side is authoritative above.

@@ -1,0 +1,15 @@
+---
+description: .NET 8 minimal Web API structure, naming, and implementation habits for this repo
+globs: Plasticfiber.Api/**/*.cs
+alwaysApply: false
+---
+
+# .NET Web API (this repo)
+
+- **Hosting**: Minimal hosting in `Program.cs`; use `MapControllers()` for attribute-routed API controllers alongside minimal endpoints when needed.
+- **Layout**: Layer folders as `Controllers/` → `Interfaces/` → `Services/` → `Models/` (namespaces `Plasticfiber.Api.*` aligned). Keep API-facing DTOs under `Plasticfiber.Api/Models/`. Use `record` for immutable JSON shapes.
+- **Naming**: Types and members `PascalCase`; JSON uses default `camelCase` unless configured otherwise.
+- **Nullability**: Keep `<Nullable>enable</Nullable>`; avoid nullable reference warnings on public DTOs.
+- **Errors**: For new endpoints, document status codes in `docs/API-SPEC.md` and return typed results (`Results.*`) where practical.
+- **Docs sync**: Any new or changed DTO must update `docs/DOMAIN-MODEL.md`. Any new or changed route must update `docs/API-SPEC.md`. Use the alignment skills in `.cursor/skills/` when verifying drift.
+- **Integration tests**: Prefer xUnit plus `WebApplicationFactory<Program>` in `Plasticfiber.Api.Tests` for HTTP-level checks; `Program` is made test-visible via `Program.IntegrationTesting.cs`. Extend tests when contracts or pipeline behavior (filters, auth) change, not only when `Program.cs` changes.
