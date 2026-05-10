@@ -25,11 +25,20 @@ Le URL di ascolto sono definite in [`Plasticfiber.Api/Properties/launchSettings.
 
 - profilo `http`: `http://localhost:5165`
 - profilo `https`: `https://localhost:7195` (con fallback HTTP su `http://localhost:5165`)
+- profilo `http-release` (test locale stile produzione, configurazione **Release**): `https://localhost:7080` e `http://localhost:5080`, ambiente `Production` (nessuna Swagger UI)
+
+La porta **5000** non è usata dalle configurazioni di questo repo, così resta libera per altri tool di debug.
 
 Per scegliere esplicitamente un profilo:
 
 ```bash
 dotnet run --project Plasticfiber.Api --launch-profile https
+```
+
+Per un run in configurazione Release con le porte dedicate al profilo `http-release`:
+
+```bash
+dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release
 ```
 
 Verifica rapida che il processo sia in piedi:
@@ -43,6 +52,43 @@ Per la suite di test:
 ```bash
 dotnet test
 ```
+
+## Build e rilascio (Release)
+
+Compilazione della solution in Release:
+
+```bash
+dotnet build PlasticfiberApi.sln -c Release
+```
+
+Pubblicazione dell’API in una cartella (esempio `./publish` alla root del repo):
+
+```bash
+dotnet publish Plasticfiber.Api -c Release -o ./publish
+```
+
+**Eseguire l’output pubblicato** (dalla cartella `publish`), impostando esplicitamente le URL di ascolto (consigliato: stesse porte HTTP del profilo `http-release`, senza usare la porta 5000):
+
+```bash
+cd publish
+ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5080 dotnet Plasticfiber.Api.dll
+```
+
+In alternativa, per provare un’esecuzione Release **senza** passare da `publish`, si possono usare le URL del profilo `http-release` tramite:
+
+```bash
+dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release
+```
+
+(`launchSettings.json` viene letto dal progetto; non si applica automaticamente solo copiando i file in `publish`.)
+
+**Porte configurate (riepilogo)**
+
+| Contesto | HTTP | HTTPS | Note |
+|----------|------|-------|------|
+| Debug (`http` / `https`) | `5165` | `7195` | Ambiente `Development`, Swagger attiva |
+| Release locale (`http-release`) | `5080` | `7080` | Ambiente `Production`, Swagger disattivata |
+| Porta `5000` | — | — | **Non usata** da queste URL; riservata ad altri usi |
 
 ## Swagger / OpenAPI
 
@@ -70,7 +116,7 @@ La collection Postman v2.1 importabile per i test manuali si trova in:
 
 - [`docs/postman/PlasticFiber-API.postman_collection.json`](docs/postman/PlasticFiber-API.postman_collection.json)
 
-Per importarla: aprire **Postman → Import → File** e selezionare il file. La collection definisce una variabile `baseUrl` che punta di default al profilo `http` locale (`http://localhost:5165`); modificarla a livello di collection o di environment per puntare ad altri host/porte.
+Per importarla: aprire **Postman → Import → File** e selezionare il file. La collection definisce una variabile `baseUrl` che punta di default al profilo `http` locale (`http://localhost:5165`); modificarla a livello di collection o di environment per puntare ad altri host/porte. Per test contro un’istanza avviata in Release con il profilo `http-release` (o con `ASPNETCORE_URLS` sulle stesse porte), impostare `baseUrl` ad esempio su `http://localhost:5080` (o `https://localhost:7080` se si usa HTTPS e il certificato è accettato).
 
 Quando si modificano route, controller, DTO esposti o `docs/API-SPEC.md`, la collection va aggiornata nello stesso PR per restare allineata.
 
