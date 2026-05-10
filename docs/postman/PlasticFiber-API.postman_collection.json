@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5165",
+      "value": "http://localhost:5000",
       "type": "string"
     }
   ],
@@ -16,6 +16,18 @@
     {
       "name": "Diagnostics",
       "item": [
+        {
+          "name": "GET / (status page)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/"
+            },
+            "description": "Static HTML status page (`wwwroot/index.html`)."
+          },
+          "response": []
+        },
         {
           "name": "GET /api/test (liveness)",
           "request": {

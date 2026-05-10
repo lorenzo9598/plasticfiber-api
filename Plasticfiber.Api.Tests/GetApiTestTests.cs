@@ -16,6 +16,19 @@ public class GetApiTestTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
+    public async Task Get_root_returns_200_html_status_page()
+    {
+        var response = await _client.GetAsync("/");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("text/html", response.Content.Headers.ContentType?.MediaType);
+
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Servizio online", html, StringComparison.Ordinal);
+        Assert.Contains("Plasticfiber API", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Get_api_test_returns_200_and_TestHealthResponse_json()
     {
         var response = await _client.GetAsync("/api/test");

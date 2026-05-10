@@ -11,6 +11,14 @@ This file is the **source of truth** for public HTTP endpoints. Implementations 
 
 ## Endpoints
 
+### `GET /`
+
+**Purpose:** Pagina statica di stato; indica che il processo host è raggiungibile.
+
+**Response**
+
+- **200** `text/html` — documento `wwwroot/index.html` (messaggio che il servizio è online).
+
 ### `GET /api/test`
 
 **Purpose:** Liveness probe; proves the API process is running.

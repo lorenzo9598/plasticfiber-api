@@ -21,13 +21,11 @@ Dalla root della solution:
 dotnet run --project Plasticfiber.Api
 ```
 
-Le URL di ascolto sono definite in [`Plasticfiber.Api/Properties/launchSettings.json`](Plasticfiber.Api/Properties/launchSettings.json):
+Le URL di ascolto sono definite in [`Plasticfiber.Api/Properties/launchSettings.json`](Plasticfiber.Api/Properties/launchSettings.json) e, se `ASPNETCORE_URLS` non è impostata, dal default in `Program.cs` (build **Debug** → porta **5000**, build **Release** → **5030**):
 
-- profilo `http`: `http://localhost:5165`
-- profilo `https`: `https://localhost:7195` (con fallback HTTP su `http://localhost:5165`)
-- profilo `http-release` (test locale stile produzione, configurazione **Release**): `https://localhost:7080` e `http://localhost:5080`, ambiente `Production` (nessuna Swagger UI)
-
-La porta **5000** non è usata dalle configurazioni di questo repo, così resta libera per altri tool di debug.
+- profilo `http`: `http://localhost:5000`
+- profilo `https`: `https://localhost:7195` (con fallback HTTP su `http://localhost:5000`)
+- profilo `http-release` (test locale stile produzione, configurazione **Release**): `https://localhost:7080` e `http://localhost:5030`, ambiente `Production` (nessuna Swagger UI)
 
 Per scegliere esplicitamente un profilo:
 
@@ -44,7 +42,7 @@ dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release
 Verifica rapida che il processo sia in piedi:
 
 ```bash
-curl http://localhost:5165/api/test
+curl http://localhost:5000/api/test
 ```
 
 Per la suite di test:
@@ -67,11 +65,22 @@ Pubblicazione dell’API in una cartella (esempio `./publish` alla root del repo
 dotnet publish Plasticfiber.Api -c Release -o ./publish
 ```
 
-**Eseguire l’output pubblicato** (dalla cartella `publish`), impostando esplicitamente le URL di ascolto (consigliato: stesse porte HTTP del profilo `http-release`, senza usare la porta 5000):
+**Eseguire l’output pubblicato** (dalla cartella `publish`): senza variabili d’ambiente l’app ascolta su **`http://localhost:5030`** (vedi `Program.cs`). Per cambiare porta o binding, imposta `ASPNETCORE_URLS` prima di avviare l’eseguibile o la DLL.
+
+Bash / macOS / Linux:
 
 ```bash
 cd publish
-ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5080 dotnet Plasticfiber.Api.dll
+ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:8080 dotnet Plasticfiber.Api.dll
+```
+
+PowerShell (Windows):
+
+```powershell
+cd publish
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+$env:ASPNETCORE_URLS = "http://localhost:8080"
+dotnet .\Plasticfiber.Api.dll
 ```
 
 In alternativa, per provare un’esecuzione Release **senza** passare da `publish`, si possono usare le URL del profilo `http-release` tramite:
@@ -86,9 +95,10 @@ dotnet run -c Release --project Plasticfiber.Api --launch-profile http-release
 
 | Contesto | HTTP | HTTPS | Note |
 |----------|------|-------|------|
-| Debug (`http` / `https`) | `5165` | `7195` | Ambiente `Development`, Swagger attiva |
-| Release locale (`http-release`) | `5080` | `7080` | Ambiente `Production`, Swagger disattivata |
-| Porta `5000` | — | — | **Non usata** da queste URL; riservata ad altri usi |
+| Debug (`http` / `https`) | `5000` | `7195` | Ambiente `Development`, Swagger attiva |
+| Release locale (`http-release`) | `5030` | `7080` | Ambiente `Production`, Swagger disattivata |
+| `dotnet publish` / exe senza `ASPNETCORE_URLS` | `5030` | — | Solo build **Release** (`#if DEBUG` falso); sovrascrivibile con env |
+| VS Code / avvio senza URL e senza profilo | `5000` o `5030` | — | Come build Debug vs Release in `Program.cs` |
 
 ## Swagger / OpenAPI
 
@@ -96,10 +106,10 @@ Swagger è abilitato **solo nell'ambiente `Development`** (vedi `Program.cs`, `a
 
 - Swagger UI:
   - <https://localhost:7195/swagger>
-  - <http://localhost:5165/swagger>
+  - <http://localhost:5000/swagger>
 - Documento OpenAPI (JSON):
   - <https://localhost:7195/swagger/v1/swagger.json>
-  - <http://localhost:5165/swagger/v1/swagger.json>
+  - <http://localhost:5000/swagger/v1/swagger.json>
 
 Se le porte in `launchSettings.json` cambiano, aggiornare di conseguenza i link qui sopra.
 
